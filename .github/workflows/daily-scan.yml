@@ -1,1 +1,33 @@
-daily-scan.yml
+
+name: Daily RSI2 Scan
+
+on:
+  schedule:
+    # 8:00 AM IST = 2:30 AM UTC, Monday to Friday
+    - cron: "30 2 * * 1-5"
+  workflow_dispatch: {}   # lets you also trigger it manually from GitHub's Actions tab
+
+jobs:
+  run-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install fyers-apiv3 pandas requests
+
+      - name: Run daily job
+        env:
+          FYERS_APP_ID: ${{ secrets.FYERS_APP_ID }}
+          FYERS_SECRET_ID: ${{ secrets.FYERS_SECRET_ID }}
+          FYERS_REFRESH_TOKEN: ${{ secrets.FYERS_REFRESH_TOKEN }}
+          FYERS_PIN: ${{ secrets.FYERS_PIN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python daily_auto_job.py
